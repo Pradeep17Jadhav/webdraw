@@ -1,6 +1,7 @@
 class MainCanvas {
   constructor() {
     this.mainCanvas = null;
+    this.context = null;
     this.canvasEnabled = false;
     this.createMainCanvas();
     this.enableDisableCanvas(false);
@@ -8,8 +9,18 @@ class MainCanvas {
 
   createMainCanvas = () => {
     this.mainCanvas = new UIElement("canvas");
-    this.mainCanvas.setClassName("mainDrawingCanvas");
     this.repositionMainCanvas();
+    this.context = this.mainCanvas.getElement().getContext("2d");
+    this.mainCanvas.setClassName("mainDrawingCanvas");
+    this.mainCanvas.addEventListener("pointerdown", (event) => {
+      strokeHandler.handlePointerDown(event, this.canvasEnabled);
+    });
+    this.mainCanvas.addEventListener("pointermove", (event) => {
+      strokeHandler.handlePointerMove(event, this.canvasEnabled);
+    });
+    this.mainCanvas.addEventListener("pointerup", (event) => {
+      strokeHandler.handlePointerUp(event, this.canvasEnabled);
+    });
     document.body.appendChild(this.mainCanvas.getElement());
   };
 
@@ -28,7 +39,11 @@ class MainCanvas {
   };
 
   repositionMainCanvas = () => {
-    this.mainCanvas.setWidth(document.body.clientWidth);
-    this.mainCanvas.setHeight(document.body.scrollHeight);
+    this.mainCanvas.setWidth(window.innerWidth);
+    this.mainCanvas.setHeight(window.innerHeight);
+  };
+
+  getContext = () => {
+    return this.context;
   };
 }

@@ -60,6 +60,7 @@ class UIElement {
 
   setWidth(width) {
     this.element.style.width = width + "px";
+    this.element.width = width;
   }
 
   getWidth() {
@@ -68,6 +69,7 @@ class UIElement {
 
   setHeight(height) {
     this.element.style.height = height + "px";
+    this.element.height = height;
   }
 
   getHeight() {
