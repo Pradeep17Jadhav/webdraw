@@ -1,12 +1,3 @@
- 
-const addCanvas = () => {
-  const canvas = new UIElement("canvas");
-  canvas.setClassName("mainDrawingCanvas");
-  canvas.setWidth(document.body.clientWidth);
-  canvas.setHeight(document.body.scrollHeight);
-  document.body.appendChild(canvas.getElement());
-};
- 
 class UIElement {
   constructor() {
     this.element = document.createElement("div");
@@ -124,26 +115,3 @@ class UIElement {
     return this.element;
   }
 }
- 
-class Toolbar extends UIElement {
-  constructor() {
-    super();
-    this.createButtons();
-    this.setClassName("toolbar");
-  }
-
-  createButtons() {
-    const buttonValues = ["1", "2", "3", "4", "5", "6"];
-    buttonValues.forEach((value) => {
-      const button = new UIElement();
-      button.setClassName("toolbarButton");
-      button.setTextContent(value);
-      this.appendChild(button.getElement());
-    });
-  }
-}
- 
- 
-const toolbar = new Toolbar();
-document.body.appendChild(toolbar.getElement());
-addCanvas();

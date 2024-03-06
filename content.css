@@ -1,0 +1,23 @@
+.toolbar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2147483647;
+}
+
+.toolbarButton {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    background: #ccc;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.mainDrawingCanvas {
+    position: absolute;
+    z-index: 2147483646;
+    top: 0px;
+    left: 0px;
+}
