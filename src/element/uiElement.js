@@ -1,6 +1,9 @@
 class UIElement {
-  constructor() {
-    this.element = document.createElement("div");
+  constructor(htmlElement) {
+    if (!htmlElement) {
+      htmlElement = "div";
+    }
+    this.element = document.createElement(htmlElement);
   }
 
   setPosition(position) {
@@ -37,6 +40,10 @@ class UIElement {
 
   setClassName(className) {
     this.element.className = className;
+  }
+
+  setInnerHTML(innerHTML) {
+    this.element.innerHTML = innerHTML;
   }
 
   getClassName() {
@@ -99,6 +106,14 @@ class UIElement {
     return this.element.style.marginBottom;
   }
 
+  getPointerEvents() {
+    return this.element.style.pointerEvents;
+  }
+
+  setPointerEvents(pointerEvents) {
+    this.element.style.pointerEvents = pointerEvents;
+  }
+
   setCursor(cursor) {
     this.element.style.cursor = cursor;
   }
@@ -113,5 +128,13 @@ class UIElement {
 
   getElement() {
     return this.element;
+  }
+
+  addEventListener(event, cb, options) {
+    this.element.addEventListener(event, cb, options);
+  }
+
+  removeEventListener(event, cb) {
+    this.element.removeEventListener(event, cb);
   }
 }

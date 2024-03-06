@@ -1,15 +1,45 @@
  
-const addCanvas = () => {
-  const canvas = new UIElement("canvas");
-  canvas.setClassName("mainDrawingCanvas");
-  canvas.setWidth(document.body.clientWidth);
-  canvas.setHeight(document.body.scrollHeight);
-  document.body.appendChild(canvas.getElement());
-};
+class MainCanvas {
+  constructor() {
+    this.mainCanvas = null;
+    this.canvasEnabled = false;
+    this.createMainCanvas();
+    this.enableDisableCanvas(false);
+  }
+
+  createMainCanvas = () => {
+    this.mainCanvas = new UIElement("canvas");
+    this.mainCanvas.setClassName("mainDrawingCanvas");
+    this.repositionMainCanvas();
+    document.body.appendChild(this.mainCanvas.getElement());
+  };
+
+  toggleEnableDisableCanvas = () => {
+    this.enableDisableCanvas(!this.canvasEnabled);
+  };
+
+  enableDisableCanvas = (enable) => {
+    if (enable) {
+      this.mainCanvas.setPointerEvents("auto");
+      this.canvasEnabled = true;
+    } else {
+      this.mainCanvas.setPointerEvents("none");
+      this.canvasEnabled = false;
+    }
+  };
+
+  repositionMainCanvas = () => {
+    this.mainCanvas.setWidth(document.body.clientWidth);
+    this.mainCanvas.setHeight(document.body.scrollHeight);
+  };
+}
  
 class UIElement {
-  constructor() {
-    this.element = document.createElement("div");
+  constructor(htmlElement) {
+    if (!htmlElement) {
+      htmlElement = "div";
+    }
+    this.element = document.createElement(htmlElement);
   }
 
   setPosition(position) {
@@ -46,6 +76,10 @@ class UIElement {
 
   setClassName(className) {
     this.element.className = className;
+  }
+
+  setInnerHTML(innerHTML) {
+    this.element.innerHTML = innerHTML;
   }
 
   getClassName() {
@@ -108,6 +142,14 @@ class UIElement {
     return this.element.style.marginBottom;
   }
 
+  getPointerEvents() {
+    return this.element.style.pointerEvents;
+  }
+
+  setPointerEvents(pointerEvents) {
+    this.element.style.pointerEvents = pointerEvents;
+  }
+
   setCursor(cursor) {
     this.element.style.cursor = cursor;
   }
@@ -123,6 +165,14 @@ class UIElement {
   getElement() {
     return this.element;
   }
+
+  addEventListener(event, cb, options) {
+    this.element.addEventListener(event, cb, options);
+  }
+
+  removeEventListener(event, cb) {
+    this.element.removeEventListener(event, cb);
+  }
 }
  
 class Toolbar extends UIElement {
@@ -132,12 +182,48 @@ class Toolbar extends UIElement {
     this.setClassName("toolbar");
   }
 
+  getButtons() {
+    return [
+      {
+        label: "pencil",
+        svgPath: "assets/icons/svg/pencil.svg",
+      },
+      {
+        label: "brush",
+        svgPath: "assets/icons/svg/brush.svg",
+      },
+    ];
+  }
+
+  generateIcon(svgPath) {
+    const svgElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "svg"
+    );
+    svgElement.setAttribute("class", "icon");
+    svgElement.setAttribute("viewBox", "0 0 24 24");
+
+    // Create a 'use' element to reference the external SVG file
+    const useElement = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "use"
+    );
+    useElement.setAttribute("xlink:href", svgPath);
+
+    // Append the 'use' element to the 'svg' element
+    svgElement.appendChild(useElement);
+    return svgElement;
+  }
+
   createButtons() {
-    const buttonValues = ["1", "2", "3", "4", "5", "6"];
-    buttonValues.forEach((value) => {
+    const buttonValues = this.getButtons();
+    buttonValues.forEach((btnInfo) => {
       const button = new UIElement();
       button.setClassName("toolbarButton");
-      button.setTextContent(value);
+      button.setInnerHTML(this.generateIcon(btnInfo.svgPath));
+      button.addEventListener("pointerup", () =>
+        mainCanvas.toggleEnableDisableCanvas()
+      );
       this.appendChild(button.getElement());
     });
   }
@@ -146,4 +232,9 @@ class Toolbar extends UIElement {
  
 const toolbar = new Toolbar();
 document.body.appendChild(toolbar.getElement());
-addCanvas();
+
+const mainCanvas = new MainCanvas();
+
+window.onresize = function (event) {
+  mainCanvas.repositionMainCanvas();
+};
