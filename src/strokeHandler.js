@@ -1,6 +1,7 @@
 class StrokeHandler {
   constructor() {
     this.mainCanvas = null;
+    this.coordinates = coordinates;
     this.currentStroke = {
       start: null,
       path: [],
@@ -17,7 +18,7 @@ class StrokeHandler {
       return;
     }
     this.currentStroke = {
-      start: { x: event.clientX, y: event.clientY },
+      start: this.coordinates.getOffsetCoordinates(event),
       path: [],
       end: null,
     };
@@ -32,7 +33,9 @@ class StrokeHandler {
       if (!this.currentStroke.path) {
         this.currentStroke.path = [];
       }
-      this.currentStroke.path.push({ x: event.clientX, y: event.clientY });
+      this.currentStroke.path.push(
+        this.coordinates.getOffsetCoordinates(event)
+      );
       this.drawStroke(this.currentStroke);
     }
   }
@@ -42,8 +45,7 @@ class StrokeHandler {
       return;
     }
     if (this.currentStroke) {
-      this.currentStroke.end = { x: event.clientX, y: event.clientY };
-      this.clearCanvas();
+      this.currentStroke.end = this.coordinates.getOffsetCoordinates(event);
       this.drawStroke(this.currentStroke);
       this.strokes.push(this.currentStroke);
       this.currentStroke = null;
@@ -69,16 +71,19 @@ class StrokeHandler {
     }
   }
 
-  drawPoint() {
-    
+  repaintCanvas() {
+    this.clearCanvas();
+    this.strokes.forEach((stroke) => {
+      this.drawStroke(stroke);
+    });
   }
 
   clearCanvas() {
     this.mainCanvasContext.clearRect(
       0,
       0,
-      this.mainCanvas.width,
-      this.mainCanvas.height
+      this.mainCanvas.getWidth(),
+      this.mainCanvas.getHeight()
     );
   }
 

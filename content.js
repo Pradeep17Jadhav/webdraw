@@ -40,8 +40,24 @@ class MainCanvas {
   };
 
   repositionMainCanvas = () => {
-    this.mainCanvas.setWidth(window.innerWidth);
-    this.mainCanvas.setHeight(window.innerHeight);
+    this.repositionMainCanvasWidth();
+    this.repositionMainCanvasHeight();
+  };
+
+  repositionMainCanvasWidth = () => {
+    this.mainCanvas.setWidth(document.body.scrollWidth);
+  };
+
+  repositionMainCanvasHeight = () => {
+    this.mainCanvas.setHeight(document.body.scrollHeight);
+  };
+
+  getHeight = () => {
+    return parseInt(this.mainCanvas.getHeight());
+  };
+
+  getWidth = () => {
+    return parseInt(this.mainCanvas.getWidth());
   };
 
   getContext = () => {
@@ -52,6 +68,7 @@ class MainCanvas {
 class StrokeHandler {
   constructor() {
     this.mainCanvas = null;
+    this.coordinates = coordinates;
     this.currentStroke = {
       start: null,
       path: [],
@@ -68,7 +85,7 @@ class StrokeHandler {
       return;
     }
     this.currentStroke = {
-      start: { x: event.clientX, y: event.clientY },
+      start: this.coordinates.getOffsetCoordinates(event),
       path: [],
       end: null,
     };
@@ -83,7 +100,9 @@ class StrokeHandler {
       if (!this.currentStroke.path) {
         this.currentStroke.path = [];
       }
-      this.currentStroke.path.push({ x: event.clientX, y: event.clientY });
+      this.currentStroke.path.push(
+        this.coordinates.getOffsetCoordinates(event)
+      );
       this.drawStroke(this.currentStroke);
     }
   }
@@ -93,8 +112,7 @@ class StrokeHandler {
       return;
     }
     if (this.currentStroke) {
-      this.currentStroke.end = { x: event.clientX, y: event.clientY };
-      this.clearCanvas();
+      this.currentStroke.end = this.coordinates.getOffsetCoordinates(event);
       this.drawStroke(this.currentStroke);
       this.strokes.push(this.currentStroke);
       this.currentStroke = null;
@@ -120,16 +138,19 @@ class StrokeHandler {
     }
   }
 
-  drawPoint() {
-    
+  repaintCanvas() {
+    this.clearCanvas();
+    this.strokes.forEach((stroke) => {
+      this.drawStroke(stroke);
+    });
   }
 
   clearCanvas() {
     this.mainCanvasContext.clearRect(
       0,
       0,
-      this.mainCanvas.width,
-      this.mainCanvas.height
+      this.mainCanvas.getWidth(),
+      this.mainCanvas.getHeight()
     );
   }
 
@@ -400,14 +421,64 @@ class Color {
   }
 }
  
+class Coordinates {
+  constructor() {
+    this.lastScrollX = 0;
+    this.lastScrollY = 0;
+  }
+
+  getScrollX = () => {
+    this.lastScrollX = window.scrollX || window.pageXOffset;
+    return this.lastScrollX;
+  };
+
+  getScrollY = () => {
+    this.lastScrollY = window.scrollY || window.pageYOffset;
+    return this.lastScrollY;
+  };
+
+  getOffsetX = (event) => {
+    return event.clientX + this.getScrollX();
+  };
+
+  getOffsetY = (event) => {
+    return event.clientY + this.getScrollY();
+  };
+
+  getOffsetCoordinates = (event) => {
+    return {
+      x: this.getOffsetX(event),
+      y: this.getOffsetY(event),
+    };
+  };
+}
+ 
  
 const toolbar = new Toolbar();
 document.body.appendChild(toolbar.getElement());
 
-const strokeHandler = new StrokeHandler();
+const coordinates = new Coordinates();
+const strokeHandler = new StrokeHandler(coordinates);
 const mainCanvas = new MainCanvas();
 strokeHandler.setMainCanvas(mainCanvas);
 
 window.onresize = function (event) {
   mainCanvas.repositionMainCanvas();
 };
+
+const checkResize = setInterval(() => {
+  let updated = false;
+  if (document.body.scrollWidth !== mainCanvas.getWidth()) {
+    mainCanvas.repositionMainCanvasWidth();
+    updated = true;
+  }
+
+  if (document.body.scrollHeight !== mainCanvas.getHeight()) {
+    mainCanvas.repositionMainCanvasHeight();
+    updated = true;
+  }
+
+  if (updated) {
+    strokeHandler.repaintCanvas();
+  }
+}, 2000);

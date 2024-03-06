@@ -39,8 +39,24 @@ class MainCanvas {
   };
 
   repositionMainCanvas = () => {
-    this.mainCanvas.setWidth(window.innerWidth);
-    this.mainCanvas.setHeight(window.innerHeight);
+    this.repositionMainCanvasWidth();
+    this.repositionMainCanvasHeight();
+  };
+
+  repositionMainCanvasWidth = () => {
+    this.mainCanvas.setWidth(document.body.scrollWidth);
+  };
+
+  repositionMainCanvasHeight = () => {
+    this.mainCanvas.setHeight(document.body.scrollHeight);
+  };
+
+  getHeight = () => {
+    return parseInt(this.mainCanvas.getHeight());
+  };
+
+  getWidth = () => {
+    return parseInt(this.mainCanvas.getWidth());
   };
 
   getContext = () => {
